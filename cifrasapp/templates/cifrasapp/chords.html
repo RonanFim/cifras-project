@@ -2,22 +2,32 @@
 <html>
     <head>
         <title>{{ chord.title }}</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="{% static 'css/cifrasapp.css' %}">
     </head>
     <body>
-        <h1>{{ chord.title }}</h1>
-        <h2>{{ chord.artist }}</h2>
-        <h3>Tom: {{ chord.key }}</h3>
-
-        <div>
-            {% for line in chord.formated_lines %}
-                {% if line|slice:"0:3" == '[c]' %}
-                    <p class="chords_line">{{ line|slice:"3:"|linebreaksbr }}</p>
-                {% endif %}
-                {% if line|slice:"0:3" == '[l]' %}
-                    <p class="lyrics_line">{{ line|slice:"3:"|linebreaksbr }}</p>
-                {% endif %}
-            {% endfor %}
+        <div class="page-header">
+            <h1>{{ chord.title }}</h1>
+            <h2>{{ chord.artist }}</h2>
+        </div>
+        <div class="keyLine">
+            <span>Tom: </span>
+            <span class="chords_line">{{ chord.key }}</span>
+        </div>
+        <div class="content">
+            <div class="row">
+                <div class="col-md-8">
+                    {% for line in chord.formated_lines %}
+                        {% if line|slice:"0:3" == '[c]' %}
+                            <p class="chords_line">{{ line|slice:"3:"|linebreaksbr }}</p>
+                        {% endif %}
+                        {% if line|slice:"0:3" == '[l]' %}
+                            <p class="lyrics_line">{{ line|slice:"3:"|linebreaksbr }}</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </body>
 </html>

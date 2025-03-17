@@ -1,12 +1,31 @@
+{% load static %}
 <html>
     <head>
-        <title>Cifras</title>
+        <title>Cifras Católicas</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="{% static 'css/cifrasapp.css' %}">
     </head>
     <body>
-        <h1>Cifras:</h1>
-        <div>
+        <div class="page-header">
+            <h1 class="home-title">Cifras Católicas</h1>
+        </div>
+        <div class="home-list">
             {% for chord in chords %}
-                <h2><a href="{% url 'chords' pk=chord.pk %}">{{ chord.title }}</a></h2>
+                <div class="row">
+                    <div class="home-labels-row">
+                        {% for label in chord.tags.all %}
+                            <span class="home-labels" style="background-color: {{ label.color }}">{{ label }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="home-song-row">
+                        <span class="home-song-title"><a href="{% url 'chords' pk=chord.pk %}">{{ chord.title }}</a></span>
+                        <span> - </span>
+                        <span class="home-song-artist">{{ chord.artist }}</span>
+                    </div>
+                </div>
             {% endfor %}
         </div>
     </body>
