@@ -1,0 +1,13 @@
+<html>
+    <head>
+        <title>Cifras</title>
+    </head>
+    <body>
+        <h1>Cifras:</h1>
+        <div>
+            {% for chord in chords %}
+                <h2><a href="{% url 'chords' pk=chord.pk %}">{{ chord.title }}</a></h2>
+            {% endfor %}
+        </div>
+    </body>
+</html>

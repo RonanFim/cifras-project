@@ -1,0 +1,23 @@
+{% load static %}
+<html>
+    <head>
+        <title>{{ chord.title }}</title>
+        <link rel="stylesheet" href="{% static 'css/cifrasapp.css' %}">
+    </head>
+    <body>
+        <h1>{{ chord.title }}</h1>
+        <h2>{{ chord.artist }}</h2>
+        <h3>Tom: {{ chord.key }}</h3>
+
+        <div>
+            {% for line in chord.formated_lines %}
+                {% if line|slice:"0:3" == '[c]' %}
+                    <p class="chords_line">{{ line|slice:"3:"|linebreaksbr }}</p>
+                {% endif %}
+                {% if line|slice:"0:3" == '[l]' %}
+                    <p class="lyrics_line">{{ line|slice:"3:"|linebreaksbr }}</p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </body>
+</html>

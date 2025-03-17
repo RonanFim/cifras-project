@@ -1,0 +1,14 @@
+p {
+    white-space: pre;
+    font-family: 'Courier';
+    font-size: 12pt;
+    line-height: 0%;
+}
+
+.chords_line {
+    color: orange;
+}
+
+.lyrics_line {
+    color: black;
+}
