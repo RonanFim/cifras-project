@@ -50,46 +50,83 @@ class Chords(models.Model):
             # if(lyrics_line != "[l]"):
             self.formated_lines.append(lyrics_line)
     
-    def changeKey(self, interval):
-        if not self.formated_lines:
-            return
+    def changeContentChords(self, chordsDict):
+        linesIdx = []
+        for line in chordsDict:
+            if line['chords']:
+                linesIdx.append(line['index'])
+        newContent = ""
+        for idx,line in enumerate(self.content.splitlines(keepends=True)):
+            if idx in linesIdx:
+                chordsList = [line['chords'] for line in chordsDict if line['index'] == idx]
+                lineSearch = line
+                for ch in chordsList[0]:
+                    pos1 = lineSearch.find("{")
+                    pos2 = lineSearch.find("}")
+                    newContent += lineSearch[:pos1] + "{" + ch + "}"
+                    lineSearch = lineSearch[(pos2+1):]
+                newContent += lineSearch
+            else:
+                newContent += line
+        self.content = newContent
+        self.formatLines()
+        # self.save()
+
+
+    def changeKey(self, interval:int):
+        """
+        Altera o tom da musica. Recebe como parametro o intervalo em semitons.
+
+        :param interval: int
+        """
         if interval == 0:
             return
+        changeDict = []
+        for idx,line in enumerate(self.content.splitlines()):
+            chordsInLine = []
+            pos = line.find("{")
+            while pos >= 0:
+                pos2 = line.find("}")
+                chordsInLine.append(line[(pos+1):pos2])
+                line = line[:pos] + '~' + line[(pos+1):]
+                line = line[:pos2] + '~' + line[(pos2+1):]
+                pos = line.find("{")
+
+            newChords = [self.__offsetChord(ch, interval) for ch in chordsInLine]
+            changeDict.append({'index': idx, 'chords':newChords})
+        self.changeContentChords(changeDict)
+        self.key = self.__offsetChord(self.key, interval)
+        # self.save()
+
+
+    def __offsetChord(self, ch:str, interval:int):
         interval = interval % 12    # evita intervalos maiores que 12 semitons
         keyMapSus = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
         keyMapBem = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab']
-        print(self.formated_lines)
-        for idx,line in enumerate(self.formated_lines):
-            if line[0:3] != "[c]":
-                continue
-            lineChords = line[3:].split()
-            for ch in lineChords:
-                chExt = ""
-                chBasic = ch[0]
-                if len(ch) > 1:
-                    if (ch[1] == '#') or (ch[1] == 'b'):
-                        chBasic = ch[0:1]
-                        if len(ch) > 2:
-                            chExt = ch[2:]
-                    else:
-                        chExt = ch[1:]         
-                if chBasic in keyMapSus:
-                    offset = keyMapSus.index(chBasic) + interval
-                    if offset >= 12:
-                        offset -= 12
-                    elif offset < 0:
-                        offset += 12
-                    newChord = keyMapSus[offset]
-                elif chBasic in keyMapBem:
-                    offset = keyMapBem.index(chBasic) + interval
-                    if offset >= 12:
-                        offset -= 12
-                    elif offset < 0:
-                        offset += 12
-                    newChord = keyMapBem[offset]
-                self.formated_lines[idx] = line.replace(ch, newChord+chExt)
-        print(self.formated_lines)
+        chExt = ""
+        chBasic = ch[0]
+        if len(ch) > 1:
+            if (ch[1] == '#') or (ch[1] == 'b'):
+                chBasic = ch[0:1]
+                if len(ch) > 2:
+                    chExt = ch[2:]
+            else:
+                chExt = ch[1:]
+        if chBasic in keyMapSus:
+            offset = keyMapSus.index(chBasic) + interval
+            if offset >= 12:
+                offset -= 12
+            elif offset < 0:
+                offset += 12
+            newChord = keyMapSus[offset]
+        elif chBasic in keyMapBem:
+            offset = keyMapBem.index(chBasic) + interval
+            if offset >= 12:
+                offset -= 12
+            elif offset < 0:
+                offset += 12
+            newChord = keyMapBem[offset]
+        return newChord+chExt
 
-    
     def __str__(self):
         return self.title + " - " + self.artist

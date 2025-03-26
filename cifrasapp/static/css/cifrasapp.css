@@ -53,6 +53,11 @@
     text-align: left;
 }
 
+.changeKey {
+    text-align: right;
+    color: green;
+}
+
 .chords_line {
     color: blue;
     font-weight: bold;

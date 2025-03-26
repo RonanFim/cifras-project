@@ -15,6 +15,13 @@
             <span>Tom: </span>
             <span class="chords_line">{{ chord.key }}</span>
         </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="submit" name="minusFullTone" value="-1 Tom">
+            <input type="submit" name="minusHalfTone" value="-1/2 Tom">
+            <input type="submit" name="plusHalfTone" value="+1/2 Tom">
+            <input type="submit" name="plusFullTone" value="+1 Tom">
+        </form>
         <div class="content">
             <div class="row">
                 <div class="col-md-8">
