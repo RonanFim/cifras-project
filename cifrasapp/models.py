@@ -3,9 +3,12 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 
+keyMapSus = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+keyMapBem = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab']
+
+
 class Label(models.Model):
     name = models.CharField(max_length=30)
-    # color = models.CharField(max_length=7)
     color = ColorField(format="hexa")
 
     def __str__(self):
@@ -70,7 +73,6 @@ class Chords(models.Model):
                 newContent += line
         self.content = newContent
         self.formatLines()
-        # self.save()
 
 
     def changeKey(self, interval:int):
@@ -99,19 +101,41 @@ class Chords(models.Model):
         # self.save()
 
 
+    def getDistance(self, currKey):
+        originalpos = self.__chordPosInList(self.key)
+        currentpos = self.__chordPosInList(currKey)
+        if (originalpos < 0) or (currentpos < 0):
+            return 0
+        return (currentpos - originalpos)
+        
+
+    def __separateChord(self, chord):
+        chPrefix = chord[0]
+        chExt = ""
+        if len(chord) > 1:
+            if chord[1] in ['#', 'b']:
+                chPrefix = chord[0:2]
+                if len(chord) > 2:
+                    chExt = chord[2:]
+            else:
+                chExt = chord[1:]
+        return (chPrefix, chExt)
+
+
+    def __chordPosInList(self, chord):
+        checkChord,_ = self.__separateChord(chord)
+        pos = -1
+        if checkChord in keyMapSus:
+            pos = keyMapSus.index(checkChord)
+        elif checkChord in keyMapBem:
+            pos = keyMapBem.index(checkChord)
+        return pos
+
+
     def __offsetChord(self, ch:str, interval:int):
         interval = interval % 12    # evita intervalos maiores que 12 semitons
-        keyMapSus = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
-        keyMapBem = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab']
-        chExt = ""
-        chBasic = ch[0]
-        if len(ch) > 1:
-            if (ch[1] == '#') or (ch[1] == 'b'):
-                chBasic = ch[0:1]
-                if len(ch) > 2:
-                    chExt = ch[2:]
-            else:
-                chExt = ch[1:]
+        chBasic, chExt = self.__separateChord(ch)
+        
         if chBasic in keyMapSus:
             offset = keyMapSus.index(chBasic) + interval
             if offset >= 12:
@@ -127,6 +151,7 @@ class Chords(models.Model):
                 offset += 12
             newChord = keyMapBem[offset]
         return newChord+chExt
+
 
     def __str__(self):
         return self.title + " - " + self.artist
